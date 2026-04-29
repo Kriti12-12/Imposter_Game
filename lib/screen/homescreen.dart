@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import '../ui/common.dart';
 import 'dart:ui';
 import '../ui/buttiondesign.dart';
-import 'howtoplay.dart';
+import '../screen/howtoplay.dart';
 import '../screen/startgame.dart';
-import 'category.dart';
+import '../screen/category.dart';
 
 class Homescreen extends StatefulWidget {
   const Homescreen({super.key});

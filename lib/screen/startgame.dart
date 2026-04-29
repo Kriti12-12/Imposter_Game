@@ -19,6 +19,7 @@ class Startgame extends StatefulWidget {
 
 class _StartgameState extends State<Startgame> {
   int selectedTime = 120;
+
   bool showCategoryToImposter = false;
   bool showHintToImposter = false;
 
@@ -32,23 +33,27 @@ class _StartgameState extends State<Startgame> {
 
   List<String> selectedCategories = [];
 
+  bool _loading = false;
+
   @override
   void initState() {
     super.initState();
     _loadSavedData();
   }
 
-  // 💾 LOAD
+  // 💾 LOAD SAFE
   void _loadSavedData() async {
     final data = await GameStorage.loadGameData();
     final cats = await GameStorage.loadCategory();
-    final savedPlayers = await GameStorage.loadPlayers(); 
+    final savedPlayers = await GameStorage.loadPlayers();
+
+    if (!mounted) return;
 
     setState(() {
-      selectedTime = data["time"];
-      imposterCount = data["imposterCount"];
-      showHintToImposter = data["showHint"];
-      showCategoryToImposter = data["showCategory"];
+      selectedTime = data["time"] ?? 120;
+      imposterCount = data["imposterCount"] ?? 1;
+      showHintToImposter = data["showHint"] ?? false;
+      showCategoryToImposter = data["showCategory"] ?? false;
       selectedCategories = cats;
 
       if (savedPlayers.isNotEmpty) {
@@ -57,7 +62,7 @@ class _StartgameState extends State<Startgame> {
     });
   }
 
-  // 💾 SAVE SETTINGS
+  // 💾 SAVE SAFE
   Future<void> _saveSettings() async {
     await GameStorage.saveGameData(
       time: selectedTime,
@@ -70,18 +75,20 @@ class _StartgameState extends State<Startgame> {
     await GameStorage.saveCategory(selectedCategories);
   }
 
-  // ⏱ TIME PICKER
+  // ⏱ TIME
   Future<void> _pickTime() async {
     final result = await openTimeSelector(context);
 
-    if (result != null) {
+    if (result != null && mounted) {
       setState(() => selectedTime = result);
       await _saveSettings();
     }
   }
 
-  // ▶ START GAME (FIXED CATEGORY LOGIC)
+  // ▶ START GAME 
   void _startGame() {
+    if (_loading) return;
+
     final categoryList = selectedCategories.isNotEmpty
         ? selectedCategories
         : CategoryData.categories.map((e) => e.title).toList();
@@ -90,15 +97,16 @@ class _StartgameState extends State<Startgame> {
         .where((c) => categoryList.contains(c.title))
         .toList();
 
-    if (filtered.isEmpty) return;
+    if (filtered.isEmpty || players.length < 2) return;
 
     final category = filtered[Random().nextInt(filtered.length)];
-
     final wordItem = GameHelper.getRandomWord(category);
+
+    final safeImposterCount = imposterCount.clamp(1, players.length - 1);
 
     final imposterIndexes = GameHelper.getRandomImposters(
       players.length,
-      imposterCount,
+      safeImposterCount,
     );
 
     Navigator.push(
@@ -134,7 +142,7 @@ class _StartgameState extends State<Startgame> {
           MaterialPageRoute(builder: (_) => PlayersScreen(players: players)),
         );
 
-        if (result != null) {
+        if (result != null && mounted) {
           setState(() => players = result);
           await _saveSettings();
         }
@@ -144,21 +152,11 @@ class _StartgameState extends State<Startgame> {
           padding: const EdgeInsets.symmetric(vertical: 15),
           child: Column(
             children: [
-              const Icon(
-                Icons.people_alt_rounded,
-                size: 40,
-                color: Color(0xFF00D1FF),
-              ),
+              const Icon(Icons.people_alt_rounded, size: 40, color: Color(0xFF00D1FF)),
               const SizedBox(height: 10),
-              const Text(
-                "Players",
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
+              const Text("Players", style: TextStyle(color: Colors.white, fontSize: 20)),
               const SizedBox(height: 8),
-              Text(
-                "${players.length}",
-                style: const TextStyle(color: Colors.white70),
-              ),
+              Text("${players.length}", style: const TextStyle(color: Colors.white70)),
             ],
           ),
         ),
@@ -172,16 +170,9 @@ class _StartgameState extends State<Startgame> {
         padding: const EdgeInsets.symmetric(vertical: 15),
         child: Column(
           children: [
-            const Icon(
-              Icons.discord_rounded,
-              size: 40,
-              color: Color(0xFFFF3B9A),
-            ),
+            const Icon(Icons.discord_rounded, size: 40, color: Color(0xFFFF3B9A)),
             const SizedBox(height: 10),
-            const Text(
-              "Imposter",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
+            const Text("Imposter", style: TextStyle(color: Colors.white, fontSize: 20)),
             const SizedBox(height: 12),
 
             Row(
@@ -196,11 +187,10 @@ class _StartgameState extends State<Startgame> {
                   },
                   child: const Icon(Icons.remove_circle, color: Colors.white70),
                 ),
+
                 const SizedBox(width: 10),
-                Text(
-                  "$imposterCount",
-                  style: const TextStyle(color: Colors.white70),
-                ),
+                Text("$imposterCount", style: const TextStyle(color: Colors.white70)),
+
                 const SizedBox(width: 10),
                 GestureDetector(
                   onTap: () async {
@@ -223,23 +213,14 @@ class _StartgameState extends State<Startgame> {
     return glassCard(
       child: Row(
         children: [
-          const Icon(
-            Icons.watch_later_outlined,
-            size: 40,
-            color: Color(0xFF00D1FF),
-          ),
+          const Icon(Icons.watch_later_outlined, size: 40, color: Color(0xFF00D1FF)),
           const SizedBox(width: 15),
           Expanded(
             child: Column(
               children: [
-                const Text(
-                  "Time Left",
-                  style: TextStyle(color: Colors.white70),
-                ),
-                Text(
-                  "${selectedTime ~/ 60} Minutes",
-                  style: const TextStyle(color: Colors.white70),
-                ),
+                const Text("Time Left", style: TextStyle(color: Colors.white70)),
+                Text("${selectedTime ~/ 60} Minutes",
+                    style: const TextStyle(color: Colors.white70)),
               ],
             ),
           ),
@@ -260,13 +241,7 @@ class _StartgameState extends State<Startgame> {
           children: const [
             Icon(Icons.category, color: Color(0xFF00D1FF), size: 20),
             SizedBox(width: 8),
-            Text(
-              "Categories",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text("Categories", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ],
         ),
 
@@ -275,57 +250,26 @@ class _StartgameState extends State<Startgame> {
         glassCard(
           child: Column(
             children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.visibility,
-                    color: Color(0xFF00D1FF),
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  const Expanded(
-                    child: Text(
-                      "Show Category To Imposter",
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  ),
-                  Switch(
-                    value: showCategoryToImposter,
-                    activeThumbColor: const Color(0xFFFF3B9A),
-                    onChanged: (val) async {
-                      setState(() => showCategoryToImposter = val);
-                      await _saveSettings();
-                    },
-                  ),
-                ],
+              SwitchListTile(
+                value: showCategoryToImposter,
+                title: const Text("Show Category To Imposter",
+                    style: TextStyle(color: Colors.white70)),
+                    activeColor: Color(0xFFFF3B9A),
+                onChanged: (val) async {
+                  setState(() => showCategoryToImposter = val);
+                  await _saveSettings();
+                },
               ),
 
-              const SizedBox(height: 10),
-
-              // 💡 SHOW HINT
-              Row(
-                children: [
-                  const Icon(
-                    Icons.lightbulb,
-                    color: Color(0xFF00D1FF),
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  const Expanded(
-                    child: Text(
-                      "Show Hint To Imposter",
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  ),
-                  Switch(
-                    value: showHintToImposter,
-                    activeThumbColor: const Color(0xFFFF3B9A),
-                    onChanged: (val) async {
-                      setState(() => showHintToImposter = val);
-                      await _saveSettings();
-                    },
-                  ),
-                ],
+              SwitchListTile(
+                value: showHintToImposter,
+                title: const Text("Show Hint To Imposter",
+                    style: TextStyle(color: Colors.white70)),
+                    activeColor: Color(0xFFFF3B9A),
+                onChanged: (val) async {
+                  setState(() => showHintToImposter = val);
+                  await _saveSettings();
+                },
               ),
             ],
           ),
@@ -364,12 +308,10 @@ class _StartgameState extends State<Startgame> {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  const GradientText(
-                    "GAME SETUP",
-                    size: 30,
-                    weight: FontWeight.bold,
-                  ),
+                  const GradientText("GAME SETUP", size: 30, weight: FontWeight.bold),
+
                   AppSpacing.h20,
+
                   Row(
                     children: [
                       Expanded(child: _buildPlayersCard()),
@@ -377,6 +319,7 @@ class _StartgameState extends State<Startgame> {
                       Expanded(child: _buildImposterCard()),
                     ],
                   ),
+
                   AppSpacing.h20,
                   _buildTimeCard(),
                   AppSpacing.h20,
@@ -388,6 +331,7 @@ class _StartgameState extends State<Startgame> {
           _buildBackButton(),
         ],
       ),
+
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(20),
         child: gradientButton("START", _startGame),

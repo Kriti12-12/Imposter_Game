@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:imposter/screen/timingscreen.dart';
 import '../ui/common.dart';
 import '../functions/players.dart';
 import '../ui/buttiondesign.dart';
-import '../screen/resultscreen.dart';
 import '../screen/playersscreen.dart';
 import '../functions/game_storage.dart';
 
@@ -138,6 +138,7 @@ class _GamescreenState extends State<Gamescreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // 🕵️ Imposter label
             if (imp)
               const Text(
                 "😈 YOU ARE IMPOSTER",
@@ -150,7 +151,8 @@ class _GamescreenState extends State<Gamescreen> {
 
             const SizedBox(height: 14),
 
-            if (!imp)
+            // 👥 NORMAL PLAYER 
+            if (!imp) ...[
               Text(
                 widget.word,
                 style: const TextStyle(
@@ -159,16 +161,24 @@ class _GamescreenState extends State<Gamescreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              const SizedBox(height: 10),
+              Text(
+                "Category: ${widget.category}",
+                style: const TextStyle(color: Colors.white70),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                "Hint: ${widget.hint}",
+                style: const TextStyle(color: Colors.white70),
+              ),
+            ],
 
-            const SizedBox(height: 12),
-
+            // 🕵️ IMPOSTER → ONLY IF TOGGLES ON
             if (imp && showCategory)
               Text(
                 "Category: ${widget.category}",
                 style: const TextStyle(color: Colors.white70),
               ),
-
-            const SizedBox(height: 8),
 
             if (imp && showHint)
               Text(
@@ -240,7 +250,7 @@ class _GamescreenState extends State<Gamescreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => ResultScreen(
+                              builder: (_) => GameTimerScreen(
                                 players: players,
                                 imposterIndexes: widget.imposterIndexes,
                                 selectedTime: widget.selectedTime,
