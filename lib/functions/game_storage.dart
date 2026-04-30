@@ -32,7 +32,12 @@ class GameStorage {
     await prefs.setBool(_keyCategory, showCategory);
 
     final encodedPlayers = players
-        .map((p) => {"name": p.name, "avatar": p.avatar.codePoint})
+        .map(
+          (p) => {
+            "name": p.name,
+            "avatar": p.avatar.codePoint, // ✔ safe storage
+          },
+        )
         .toList();
 
     await prefs.setString(_keyPlayers, jsonEncode(encodedPlayers));
@@ -50,7 +55,7 @@ class GameStorage {
     };
   }
 
-  // 👥 LOAD PLAYERS
+  // 👥 LOAD PLAYERS (FIXED)
   static Future<List<Player>> loadPlayers() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_keyPlayers);
@@ -60,12 +65,11 @@ class GameStorage {
     final data = jsonDecode(raw) as List;
 
     return data.map((p) {
+      final codePoint = (p["avatar"] as num).toInt();
+
       return Player(
         name: p["name"],
-        avatar: IconData(
-          (p["avatar"] as num).toInt(),
-          fontFamily: 'MaterialIcons',
-        ),
+        avatar: IconData(codePoint, fontFamily: 'MaterialIcons'),
       );
     }).toList();
   }
@@ -82,12 +86,13 @@ class GameStorage {
     return prefs.getStringList(_keyCategoryList) ?? [];
   }
 
+  // 🧹 CLEAR ALL DATA
   static Future<void> clearAll() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
   }
 
-  // 🔊 SAVE AUDIO SETTINGS (music + click sound)
+  // 🔊 SAVE AUDIO SETTINGS
   static Future<void> saveAudioSettings({
     required double volume,
     required bool isMuted,
