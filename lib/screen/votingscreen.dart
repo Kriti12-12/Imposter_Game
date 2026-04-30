@@ -63,7 +63,7 @@ class _VotingScreenState extends State<VotingScreen> {
         builder: (_) => FinalResultScreen(
           players: widget.players,
           imposterIndexes: widget.imposterIndexes,
-          eliminatedIndex: eliminatedIndexes.first, 
+          eliminatedIndex: eliminatedIndexes.first,
         ),
       ),
     );
@@ -85,7 +85,7 @@ class _VotingScreenState extends State<VotingScreen> {
                 const SizedBox(height: 20),
 
                 GradientText(
-                  "🗳️ VOTING PHASE",
+                  "🗳️ VOTING PHASE 🗳️",
                   size: 26,
                   weight: FontWeight.bold,
                 ),
@@ -104,7 +104,7 @@ class _VotingScreenState extends State<VotingScreen> {
                     itemCount: widget.players.length,
                     itemBuilder: (context, index) {
                       return Padding(
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(6.0),
                         child: glassCard(
                           child: ListTile(
                             title: Text(
@@ -115,7 +115,11 @@ class _VotingScreenState extends State<VotingScreen> {
                               "Votes: ${votes[index]}",
                               style: const TextStyle(color: Colors.white70),
                             ),
-                            trailing: gradientButton("Vote", () => vote(index)),
+                            trailing: SizedBox(
+                              width: 100,
+                              height: 50,
+                              child: gradientButton("Vote", () => vote(index)),
+                            ),
                           ),
                         ),
                       );

@@ -36,7 +36,7 @@ class FinalResultScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  GradientText("🎭 RESULT", size: 30, weight: FontWeight.bold),
+                  GradientText("🎭 RESULT 🎭", size: 30, weight: FontWeight.bold),
 
                   const SizedBox(height: 30),
 

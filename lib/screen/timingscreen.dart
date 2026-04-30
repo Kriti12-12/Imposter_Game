@@ -116,7 +116,7 @@ class _GameTimerScreenState extends State<GameTimerScreen>
                   const SizedBox(height: 20),
 
                   GradientText(
-                    "⏳ DISCUSSION TIME",
+                    "⏳ DISCUSSION TIME ⏳",
                     size: 26,
                     weight: FontWeight.bold,
                   ),

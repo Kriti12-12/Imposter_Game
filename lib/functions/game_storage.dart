@@ -11,6 +11,11 @@ class GameStorage {
   static const _keyCategoryList = "category_list";
   static const _keyPlayers = "players";
 
+  // 🔊 AUDIO KEYS
+  static const _keyVolume = "music_volume";
+  static const _keyMute = "music_mute";
+  static const _keyClick = "click_sound";
+
   // 💾 SAVE GAME DATA
   static Future<void> saveGameData({
     required int time,
@@ -26,7 +31,6 @@ class GameStorage {
     await prefs.setBool(_keyHint, showHint);
     await prefs.setBool(_keyCategory, showCategory);
 
-    // 👥 SAVE PLAYERS
     final encodedPlayers = players
         .map((p) => {"name": p.name, "avatar": p.avatar.codePoint})
         .toList();
@@ -34,7 +38,7 @@ class GameStorage {
     await prefs.setString(_keyPlayers, jsonEncode(encodedPlayers));
   }
 
-  // 📥 LOAD GAME SETTINGS
+  // 📥 LOAD GAME DATA
   static Future<Map<String, dynamic>> loadGameData() async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -81,5 +85,29 @@ class GameStorage {
   static Future<void> clearAll() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+  }
+
+  // 🔊 SAVE AUDIO SETTINGS (music + click sound)
+  static Future<void> saveAudioSettings({
+    required double volume,
+    required bool isMuted,
+    required bool clickSound,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setDouble(_keyVolume, volume);
+    await prefs.setBool(_keyMute, isMuted);
+    await prefs.setBool(_keyClick, clickSound);
+  }
+
+  // 📥 LOAD AUDIO SETTINGS
+  static Future<Map<String, dynamic>> loadAudioSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    return {
+      "volume": prefs.getDouble(_keyVolume) ?? 1.0,
+      "isMuted": prefs.getBool(_keyMute) ?? false,
+      "clickSound": prefs.getBool(_keyClick) ?? true,
+    };
   }
 }

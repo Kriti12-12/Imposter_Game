@@ -100,27 +100,30 @@ class _GamescreenState extends State<Gamescreen> {
 
   // 🌟 FRONT
   Widget frontCard(Player p) {
-    return glassCard(
-      child: SizedBox(
-        height: 240,
-        width: double.infinity,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(p.avatar, color: Colors.white, size: 55),
-            const SizedBox(height: 15),
-            Text(p.name, style: const TextStyle(color: Colors.white)),
-            const SizedBox(height: 10),
-            const Text(
-              "Don’t show this to others 🤫",
-              style: TextStyle(color: Colors.white54),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "Tap to reveal",
-              style: TextStyle(color: Colors.white70),
-            ),
-          ],
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: glassCard(
+        child: SizedBox(
+          height: 240,
+          width: double.infinity,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(p.avatar, color: Colors.white, size: 55),
+              const SizedBox(height: 15),
+              Text(p.name, style: const TextStyle(color: Colors.white)),
+              const SizedBox(height: 10),
+              const Text(
+                "Don’t show this to others 🤫",
+                style: TextStyle(color: Colors.white54),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                "Tap to reveal",
+                style: TextStyle(color: Colors.white70),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -131,61 +134,64 @@ class _GamescreenState extends State<Gamescreen> {
     final showCategory = widget.showCategoryToImposter;
     final showHint = widget.showHintToImposter;
 
-    return glassCard(
-      child: SizedBox(
-        height: 240,
-        width: double.infinity,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // 🕵️ Imposter label
-            if (imp)
-              const Text(
-                "😈 YOU ARE IMPOSTER",
-                style: TextStyle(
-                  color: Colors.redAccent,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: glassCard(
+        child: SizedBox(
+          height: 240,
+          width: double.infinity,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // 🕵️ Imposter label
+              if (imp)
+                const Text(
+                  "😈 YOU ARE IMPOSTER",
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-
-            const SizedBox(height: 14),
-
-            // 👥 NORMAL PLAYER 
-            if (!imp) ...[
-              Text(
-                widget.word,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+      
+              const SizedBox(height: 14),
+      
+              // 👥 NORMAL PLAYER 
+              if (!imp) ...[
+                Text(
+                  widget.word,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                "Category: ${widget.category}",
-                style: const TextStyle(color: Colors.white70),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                "Hint: ${widget.hint}",
-                style: const TextStyle(color: Colors.white70),
-              ),
+                const SizedBox(height: 10),
+                Text(
+                  "Category: ${widget.category}",
+                  style: const TextStyle(color: Colors.white70),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  "Hint: ${widget.hint}",
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              ],
+      
+              // 🕵️ IMPOSTER → ONLY IF TOGGLES ON
+              if (imp && showCategory)
+                Text(
+                  "Category: ${widget.category}",
+                  style: const TextStyle(color: Colors.white70),
+                ),
+      
+              if (imp && showHint)
+                Text(
+                  "Hint: ${widget.hint}",
+                  style: const TextStyle(color: Colors.white70),
+                ),
             ],
-
-            // 🕵️ IMPOSTER → ONLY IF TOGGLES ON
-            if (imp && showCategory)
-              Text(
-                "Category: ${widget.category}",
-                style: const TextStyle(color: Colors.white70),
-              ),
-
-            if (imp && showHint)
-              Text(
-                "Hint: ${widget.hint}",
-                style: const TextStyle(color: Colors.white70),
-              ),
-          ],
+          ),
         ),
       ),
     );

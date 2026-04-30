@@ -5,6 +5,7 @@ import '../ui/buttiondesign.dart';
 import '../screen/howtoplay.dart';
 import '../screen/startgame.dart';
 import '../screen/category.dart';
+import '../screen/settings.dart';
 
 class Homescreen extends StatefulWidget {
   const Homescreen({super.key});
@@ -166,6 +167,34 @@ class _HomescreenState extends State<Homescreen> {
 
                 const Spacer(),
               ],
+            ),
+          ),
+
+          // settings button
+          Positioned(
+            top: 50,
+            right: 20,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(50),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const Settings(),
+                    ),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.2),
+                  ),
+                  child: const Icon(Icons.settings, color: Colors.white),
+                ),
+              ),
             ),
           ),
         ],

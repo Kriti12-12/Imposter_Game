@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../ui/common.dart';
 import '../screen/homescreen.dart';
 import 'dart:ui';
+import '../functions/audio_manager.dart';
 
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({super.key});
@@ -14,6 +15,17 @@ class _LoadingScreenState extends State<LoadingScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   double progress = 0.0;
+
+  Future<void> _initAudio() async {
+    final audio = AudioManager();
+
+    await audio.init();
+
+    audio.setVolume(1.0); 
+    audio.mute(false); 
+
+    await audio.play();
+  }
 
   @override
   void initState() {
@@ -28,6 +40,7 @@ class _LoadingScreenState extends State<LoadingScreen>
           });
 
     _controller.forward();
+
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         Future.delayed(Duration.zero, () {
@@ -38,6 +51,8 @@ class _LoadingScreenState extends State<LoadingScreen>
         });
       }
     });
+
+    _initAudio();
   }
 
   @override
@@ -163,13 +178,13 @@ class _LoadingScreenState extends State<LoadingScreen>
                 // PROGRESS BELOW CARD
                 Column(
                   children: [
-                    Text(
+                    GradientText(
                       progress < 0.5
                           ? "Initializing..."
                           : progress < 0.7
                           ? "Loading assets..."
                           : "Almost ready...",
-                      style: AppTextStyles.white.copyWith(fontSize: 15),
+                      size: 15,
                     ),
                     AppSpacing.h5,
                     Container(
