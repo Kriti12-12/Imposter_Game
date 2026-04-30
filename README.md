@@ -1,6 +1,6 @@
-# flutter_123
+# imposter game
 
-A new Flutter project.
+one device multiplayer game
 
 ## Getting Started
 
