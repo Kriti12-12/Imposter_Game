@@ -6,22 +6,45 @@ import '../ui/buttiondesign.dart';
 class FinalResultScreen extends StatelessWidget {
   final List<Player> players;
   final List<int> imposterIndexes;
-  final int eliminatedIndex;
+  final List<int> eliminatedIndexes; // 👈 change here
 
   const FinalResultScreen({
     super.key,
     required this.players,
     required this.imposterIndexes,
-    required this.eliminatedIndex,
+    required this.eliminatedIndexes,
   });
-
-  bool get isCorrectCatch => imposterIndexes.contains(eliminatedIndex);
 
   List<String> get imposterNames =>
       imposterIndexes.map((i) => players[i].name).toList();
 
+  List<String> get eliminatedNames =>
+      eliminatedIndexes.map((i) => players[i].name).toList();
+
+  int get correctCatches {
+    int count = 0;
+    for (var i in eliminatedIndexes) {
+      if (imposterIndexes.contains(i)) count++;
+    }
+    return count;
+  }
+
   @override
   Widget build(BuildContext context) {
+    String resultText;
+    Color resultColor;
+
+    if (correctCatches == imposterIndexes.length) {
+      resultText = "🎉 All imposters caught!";
+      resultColor = const Color(0xFF00D1FF);
+    } else if (correctCatches > 0) {
+      resultText = "😐 You caught $correctCatches imposter(s)";
+      resultColor = Color(0xFF7B61FF);
+    } else {
+      resultText = "💀 All imposters escaped!";
+      resultColor = const Color(0xFFFF3B9A);
+    }
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
@@ -36,12 +59,16 @@ class FinalResultScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  GradientText("🎭 RESULT 🎭", size: 30, weight: FontWeight.bold),
+                  GradientText(
+                    "🎭 RESULT 🎭",
+                    size: 30,
+                    weight: FontWeight.bold,
+                  ),
 
                   const SizedBox(height: 30),
 
                   Text(
-                    "Eliminated: ${players[eliminatedIndex].name}",
+                    "Eliminated: ${eliminatedNames.join(', ')}",
                     style: const TextStyle(color: Colors.white, fontSize: 18),
                     textAlign: TextAlign.center,
                   ),
@@ -61,13 +88,9 @@ class FinalResultScreen extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   Text(
-                    isCorrectCatch
-                        ? "🎉 You caught the Imposter!"
-                        : "😵 Wrong vote!",
+                    resultText,
                     style: TextStyle(
-                      color: isCorrectCatch
-                          ? Color(0xFF00D1FF)
-                          : Color(0xFFFF3B9A),
+                      color: resultColor,
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
                     ),

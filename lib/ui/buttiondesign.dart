@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:imposter/functions/audio_manager.dart';
 
 // Custom gradient button
 Widget gradientButton(String text, VoidCallback onPressed) {
@@ -18,10 +17,7 @@ Widget gradientButton(String text, VoidCallback onPressed) {
       ],
     ),
     child: ElevatedButton(
-      onPressed: () async {
-        AudioManager().playClick();
-        onPressed();
-      },
+      onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,

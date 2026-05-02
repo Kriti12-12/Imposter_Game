@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:imposter/functions/startgamefunctions.dart';
+import '../functions/startgamefunctions.dart';
 import '../ui/common.dart';
 import '../screen/homescreen.dart';
 import '../ui/buttiondesign.dart';

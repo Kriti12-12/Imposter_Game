@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:imposter/ui/common.dart';
+import '../ui/common.dart';
 import '../functions/audio_manager.dart';
 import '../functions/game_storage.dart';
 import '../screen/homescreen.dart';

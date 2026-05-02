@@ -21,41 +21,61 @@ class VotingScreen extends StatefulWidget {
 }
 
 class _VotingScreenState extends State<VotingScreen> {
-  List<int> votes = [];
-  List<bool> hasVoted = [];
-
   int currentVoter = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    votes = List.filled(widget.players.length, 0);
-    hasVoted = List.filled(widget.players.length, false);
-  }
+  Map<int, Set<int>> votes = {};
+  Set<int> selectedIndexes = {};
 
-  void vote(int targetIndex) {
-    if (hasVoted[currentVoter]) return;
+  int get imposterCount => widget.imposterIndexes.length;
+
+  void toggleSelection(int index) {
+    if (index == currentVoter) return;
 
     setState(() {
-      votes[targetIndex]++;
-      hasVoted[currentVoter] = true;
-
-      if (currentVoter < widget.players.length - 1) {
-        currentVoter++;
+      if (selectedIndexes.contains(index)) {
+        selectedIndexes.remove(index);
+      } else {
+        if (selectedIndexes.length < imposterCount) {
+          selectedIndexes.add(index);
+        }
       }
     });
   }
 
+  void nextPlayer() {
+    votes[currentVoter] = Set.from(selectedIndexes);
+
+    selectedIndexes.clear();
+
+    if (currentVoter < widget.players.length - 1) {
+      setState(() {
+        currentVoter++;
+      });
+    } else {
+      showResult();
+    }
+  }
+
   void showResult() {
-    int maxVotes = votes.reduce((a, b) => a > b ? a : b);
+    Map<int, int> voteCount = {};
+
+    votes.forEach((voter, selectedList) {
+      for (var index in selectedList) {
+        voteCount[index] = (voteCount[index] ?? 0) + 1;
+      }
+    });
+
+    int maxVotes = voteCount.values.isNotEmpty
+        ? voteCount.values.reduce((a, b) => a > b ? a : b)
+        : 0;
 
     List<int> eliminatedIndexes = [];
 
-    for (int i = 0; i < votes.length; i++) {
-      if (votes[i] == maxVotes) {
-        eliminatedIndexes.add(i);
+    voteCount.forEach((index, count) {
+      if (count == maxVotes) {
+        eliminatedIndexes.add(index);
       }
-    }
+    });
 
     Navigator.pushReplacement(
       context,
@@ -63,7 +83,7 @@ class _VotingScreenState extends State<VotingScreen> {
         builder: (_) => FinalResultScreen(
           players: widget.players,
           imposterIndexes: widget.imposterIndexes,
-          eliminatedIndex: eliminatedIndexes.first,
+          eliminatedIndexes: eliminatedIndexes,
         ),
       ),
     );
@@ -97,12 +117,25 @@ class _VotingScreenState extends State<VotingScreen> {
                   style: const TextStyle(color: Colors.white70),
                 ),
 
+                const SizedBox(height: 5),
+
+                Text(
+                  "Select up to $imposterCount imposters",
+                  style: const TextStyle(color: Colors.white70),
+                ),
+
                 const SizedBox(height: 20),
 
                 Expanded(
                   child: ListView.builder(
                     itemCount: widget.players.length,
                     itemBuilder: (context, index) {
+                      if (index == currentVoter) {
+                        return const SizedBox();
+                      }
+
+                      final isSelected = selectedIndexes.contains(index);
+
                       return Padding(
                         padding: const EdgeInsets.all(6.0),
                         child: glassCard(
@@ -111,15 +144,15 @@ class _VotingScreenState extends State<VotingScreen> {
                               widget.players[index].name,
                               style: const TextStyle(color: Colors.white),
                             ),
-                            subtitle: Text(
-                              "Votes: ${votes[index]}",
-                              style: const TextStyle(color: Colors.white70),
+                            trailing: Icon(
+                              isSelected
+                                  ? Icons.check_circle
+                                  : Icons.circle_outlined,
+                              color: isSelected
+                                  ? Color(0xFFFF3B9A)
+                                  : Colors.white70,
                             ),
-                            trailing: SizedBox(
-                              width: 100,
-                              height: 50,
-                              child: gradientButton("Vote", () => vote(index)),
-                            ),
+                            onTap: () => toggleSelection(index),
                           ),
                         ),
                       );
@@ -131,7 +164,7 @@ class _VotingScreenState extends State<VotingScreen> {
                   padding: const EdgeInsets.all(20),
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width * 0.6,
-                    child: gradientButton("SHOW RESULT", showResult),
+                    child: gradientButton("NEXT", nextPlayer),
                   ),
                 ),
               ],

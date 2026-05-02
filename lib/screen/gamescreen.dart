@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:imposter/screen/timingscreen.dart';
+import '../screen/timingscreen.dart';
 import '../ui/common.dart';
 import '../functions/players.dart';
 import '../ui/buttiondesign.dart';
